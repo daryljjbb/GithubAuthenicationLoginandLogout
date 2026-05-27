@@ -107,16 +107,53 @@ export function AuthProvider({
   // -----------------------------------
   // LOGOUT FUNCTION
   // -----------------------------------
-  const logout = () => {
+ const logout = async () => {
 
-    localStorage.removeItem("access");
+  try {
 
-    localStorage.removeItem("refresh");
+    const refresh =
+      localStorage.getItem(
+        "refresh"
+      );
 
-    localStorage.removeItem("user");
+
+    // BACKEND LOGOUT
+    await axiosClient.post(
+
+      "/logout/",
+
+      { refresh }
+    );
+
+  } catch (error) {
+
+    console.error(
+
+      "Logout failed:",
+
+      error
+    );
+
+  } finally {
+
+    // ALWAYS CLEAN LOCAL SESSION
+    localStorage.removeItem(
+      "access"
+    );
+
+    localStorage.removeItem(
+      "refresh"
+    );
+
+    localStorage.removeItem(
+      "user"
+    );
 
     setUser(null);
-  };
+
+    window.location.href = "/";
+  }
+};
 
 
   return (

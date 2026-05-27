@@ -297,25 +297,51 @@ class LoginView(APIView):
     
 class LogoutView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated
+    ]
 
 
     def post(self, request):
 
-        create_audit_log(
+        try:
 
-            event="logout",
+            refresh_token = request.data.get(
+                "refresh"
+            )
 
-            request=request,
+            token = RefreshToken(
+                refresh_token
+            )
 
-            user=request.user,
-        )
+            # BLACKLIST TOKEN
+            token.blacklist()
 
-        return Response({
-            "message": "Logged out"
-        })
-    
-    
+            return Response({
+
+                "success": True,
+
+                "message":
+                    "Logged out successfully."
+
+            })
+
+        except Exception as e:
+
+            return Response({
+
+                "success": False,
+
+                "message":
+                    "Invalid token.",
+
+                "error": str(e)
+
+            },
+
+            status=status.HTTP_400_BAD_REQUEST
+            )
+
 class MeView(APIView):
 
     permission_classes = [IsAuthenticated]
